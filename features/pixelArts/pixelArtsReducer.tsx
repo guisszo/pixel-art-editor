@@ -83,7 +83,7 @@ const pixelArtSlice = createSlice({
             }
         },
         setGrid: (state, action: PayloadAction<Pixel[][]>) => {
-            state.past.push(JSON.parse(JSON.stringify(state.grid))); // deep copy
+            state.past.push(JSON.parse(JSON.stringify(state.grid)));
             state.future = [];
             state.grid = action.payload;
         },

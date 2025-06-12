@@ -1,9 +1,9 @@
 import { setGrid } from '@/features/pixelArts/pixelArtsReducer'
 import { deleteGridFromStorage, listSavedGrids, loadGridFromStorage } from '@/utils/storage'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useRouter } from 'expo-router'
+import { useNavigation, useRouter } from 'expo-router'
 import { Trash2 } from 'lucide-react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import {
   FlatList,
   Modal,
@@ -29,6 +29,13 @@ const GalleryScreen = () => {
   const [savedNames, setSavedNames] = useState<string[]>([])
   const [modalVisible, setModalVisible] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Galerie',
+    });
+  }, [navigation]);
 
   const dispatch = useDispatch()
   const router = useRouter()
@@ -45,7 +52,7 @@ const GalleryScreen = () => {
     const grid = await loadGridFromStorage(name)
     if (grid) {
       dispatch(setGrid(grid))
-      router.push('/editor')
+      router.dismissTo('/editor')
     }
   }, [dispatch, router])
 

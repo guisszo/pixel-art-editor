@@ -2,20 +2,21 @@ import { DEFAULT_COLORS } from '@/constants/colors'
 import { getGrid, isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
 import { saveGridToStorage } from '@/utils/storage'
 import { Link, useNavigation } from 'expo-router'
-import { FolderUp, Save } from 'lucide-react-native'
-import React, { useCallback, useLayoutEffect, useState } from 'react'
-import { Alert, Button, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { FolderDown, Save, Share2 } from 'lucide-react-native'
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { Alert, Button, Modal, SafeAreaView, Share, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import ViewShot, { captureRef } from "react-native-view-shot"
+import { useSelector } from 'react-redux'
 import { ColorPalette, PixelGrid, ToolBar } from '../components'
 
 export default function EditorScreen() {
-    const dispatch = useDispatch();
     const grid = useSelector(getGrid);
     const isEmptyGrid = isGridEmpty(grid);
     const [saveModalVisible, setSaveModalVisible] = useState(false)
     const [saveName, setSaveName] = useState('')
     const currentGrid = useSelector(getGrid);
     const navigation = useNavigation();
+    const viewShotRef = useRef<ViewShot>(null);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -31,9 +32,18 @@ export default function EditorScreen() {
                     </TouchableOpacity>
                     <Link href="/gallery" asChild>
                         <TouchableOpacity>
-                            <FolderUp size={22} />
+                            <FolderDown size={22} />
                         </TouchableOpacity>
                     </Link>
+                    {
+                        !isEmptyGrid && <TouchableOpacity
+                            onPress={handleShare}
+                            style={{ marginLeft: 12 }}
+                        >
+                            <Share2 color={isEmptyGrid ? 'grey' : undefined} size={22} />
+                        </TouchableOpacity>
+                    }
+
                 </View>
             )
         })
@@ -48,14 +58,34 @@ export default function EditorScreen() {
         alert('Création sauvegardée.')
     }, [saveName, currentGrid]);
 
+    const handleShare = useCallback(async () => {
+        try {
+            const uri = await captureRef(viewShotRef, {
+                format: 'png',
+                quality: 1,
+            });
+
+            await Share.share({
+                url: uri,
+                title: 'Mon Pixel Art',
+                message: 'Regarde mon pixel art !',
+            });
+        } catch (error) {
+            console.error("Erreur lors du partage :", error);
+        }
+    }, [viewShotRef]);
+
+
     return (
         <SafeAreaView style={styles.container}>
-
             <ToolBar />
-
-            <PixelGrid rows={16} cols={16} />
+            <ViewShot
+                ref={viewShotRef}
+                options={{ format: "png", quality: 1 }}
+            >
+                <PixelGrid rows={16} cols={16} />
+            </ViewShot>
             <ColorPalette colors={DEFAULT_COLORS} />
-
             <Modal
                 visible={saveModalVisible}
                 transparent
