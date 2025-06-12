@@ -4,12 +4,14 @@ import { saveGridToStorage } from '@/utils/storage'
 import { Link, useNavigation } from 'expo-router'
 import { FolderDown, Save, Share2 } from 'lucide-react-native'
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { Alert, Button, Modal, SafeAreaView, Share, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Modal, SafeAreaView, Share, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import ViewShot, { captureRef } from "react-native-view-shot"
 import { useSelector } from 'react-redux'
 import { ColorPalette, PixelGrid, ToolBar } from '../components'
+import { useStyles } from './useStyles'
 
 export default function EditorScreen() {
+    const styles = useStyles();
     const grid = useSelector(getGrid);
     const isEmptyGrid = isGridEmpty(grid);
     const [saveModalVisible, setSaveModalVisible] = useState(false)
@@ -100,72 +102,25 @@ export default function EditorScreen() {
                             style={styles.input}
                         />
                         <View style={styles.modalButtonContainer}>
-                            <Button
-                                title="Annuler"
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.cancelButton]}
                                 onPress={() => setSaveModalVisible(false)}
-                                color={'#EAEEEB'}
-                            />
-                            <Button title="Enregistrer" onPress={handleSave} />
+                            >
+                                <Text style={styles.cancelText}>Annuler</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.saveButton]}
+                                onPress={handleSave}
+                            >
+                                <Text style={styles.saveText}>Enregistrer</Text>
+                            </TouchableOpacity>
                         </View>
+
 
                     </View>
                 </View>
             </Modal>
         </SafeAreaView>
     )
-}
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: '#f2f2f2'
-    },
-    headerButtons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingRight: 10
-    },
-    toolbarStyle: {
-        flexDirection: 'row',
-        marginHorizontal: 20,
-        justifyContent: 'space-around',
-        marginVertical: 10,
-        backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 12,
-    },
-    title: {
-        fontSize: 20,
-        marginVertical: 10
-    },
-    modalButtonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 12,
-        width: '80%',
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 10,
-        marginBottom: 10,
-    },
-
-})
+};
