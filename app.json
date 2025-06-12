@@ -9,15 +9,17 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.guisszo.PixelArtEditor"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/pixel-art-logo.png",
         "backgroundColor": "#ffffff",
-        "imageWIdth":150
+        "imageWIdth": 150
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.guisszo.PixelArtEditor"
     },
     "web": {
       "bundler": "metro",

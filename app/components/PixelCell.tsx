@@ -1,25 +1,41 @@
-import React from 'react'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useRef } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 interface PixelCellProps {
-  color: string | null
-  onPress: () => void
-  onLongPress?: () => void
-  size?: number
+  color: string | null;
+  onPress: () => void;
+  onLongPress?: () => void;
+  onDragEnter?: () => void;
+  size?: number;
 }
 
 export const PixelCell: React.FC<PixelCellProps> = ({
   color,
   onPress,
   onLongPress,
+  onDragEnter,
   size = 20,
 }) => {
+  const cellRef = useRef<View>(null);
+
   return (
-    <TouchableOpacity
+    <Pressable
+      ref={cellRef}
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={200}
-      activeOpacity={0.7}
+      onTouchMove={(e) => {
+        // Check si le doigt est dans la cellule pendant le move
+        const { locationX, locationY } = e.nativeEvent;
+        if (
+          locationX >= 0 &&
+          locationY >= 0 &&
+          locationX <= size &&
+          locationY <= size
+        ) {
+          onDragEnter?.();
+        }
+      }}
       style={[
         styles.cell,
         {
@@ -29,8 +45,8 @@ export const PixelCell: React.FC<PixelCellProps> = ({
         },
       ]}
     />
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   cell: {
@@ -38,4 +54,4 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#ccc',
   },
-})
+});

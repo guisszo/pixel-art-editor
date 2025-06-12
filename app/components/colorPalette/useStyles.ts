@@ -1,12 +1,12 @@
 import { useMemo } from "react";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 export const useStyles = () => {
 
     const styles = useMemo(() => StyleSheet.create({
         container: {
             position: 'absolute',
-            bottom: Platform.OS === 'ios' ? 0 : 110,
+            bottom:  0 ,
             width: '100%',
             backgroundColor: '#fff',
             borderTopLeftRadius: 20,
