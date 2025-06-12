@@ -15,7 +15,7 @@ const CARD_WIDTH = (width - 60) / 2
 export default function Home() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenue dans Pixel Art!</Text>
+      <Text style={styles.title}>Pixel Art!</Text>
 
       <View style={styles.grid}>
         <AnimatedCard
