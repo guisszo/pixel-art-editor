@@ -1,19 +1,19 @@
-import { fillPixel, initializeGrid } from '@/features/pixelArts/pixelArtsReducer'
-import { getGrid } from '@/store/gridPixelSelectors'
-import React, { useEffect } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
-import { PixelCell } from './PixelCell'
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { PixelCell } from '../PixelCell';
+import { useController } from './useController';
 
-export const PixelGrid: React.FC<{
-    rows: number; cols: number, cellSize?: number
-}> = ({ rows, cols, cellSize = 20 }) => {
-    const dispatch = useDispatch()
-    const grid = useSelector(getGrid)
+interface PixelGridProps {
+    rows: number;
+    cols: number;
+    cellSize?: number;
+};
+export const PixelGrid: React.FC<PixelGridProps> = ({ rows, cols, cellSize = 20 }) => {
 
-    useEffect(() => {
-        dispatch(initializeGrid({ rows, cols }))
-    }, [rows, cols])
+    const {
+        grid,
+        handleCellPress
+    } = useController({ rows, cols });
 
     return (
         <View style={styles.grid}>
@@ -27,7 +27,7 @@ export const PixelGrid: React.FC<{
                                 <PixelCell
                                     key={`${x}-${y}`}
                                     color={color}
-                                    onPress={() => dispatch(fillPixel({ x, y }))}
+                                    onPress={() => handleCellPress(x, y)}
                                     size={cellSize}
                                 />
                             ))

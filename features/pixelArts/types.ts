@@ -1,12 +1,21 @@
 export type Pixel = string | null
 
 export interface PixelArtState {
-  grid: Pixel[][]
-  selectedColor: string
+  grid: Pixel[][];
+  selectedColor: string;
+  selectedTool: Tool;
+  future: Array<Pixel[][]>;
+  past: Array<Pixel[][]>;
 }
 
+export type Cell = { x: number; y: number };
 
-export const pixelArtInitialState: PixelArtState = {
-  grid: [],
-  selectedColor: '#000000',
+
+export type Tool = 'pen' | 'fill' | 'picker' | 'undo' | 'redo';
+
+export type FillAllCellsProps = {
+  x: number,
+  y: number,
+  currentCellColor: Pixel,
+  replacementColor: string
 }

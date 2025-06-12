@@ -1,5 +1,5 @@
+import { getSelectedColor } from '@/features/pixelArts/gridPixelSelectors'
 import { setColor } from '@/features/pixelArts/pixelArtsReducer'
-import { getSelectedColor } from '@/store/gridPixelSelectors'
 import React from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -44,13 +44,15 @@ const styles = StyleSheet.create({
     colorBlock: {
         width: 32,
         height: 32,
-        borderRadius: 4,
+        borderRadius: 100,
+        padding: 2,
         margin: 5,
         borderWidth: 2,
         borderColor: '#ccc',
+        flexWrap: 'wrap',
     },
     selected: {
         borderColor: '#000',
-        borderWidth: 3,
+        borderWidth: 2,
     },
 })
