@@ -366,8 +366,6 @@ export default function EditorScreen() {
                 </View>
             </ScrollView>
 
-
-
             <ColorPalette colors={DEFAULT_COLORS} />
 
             <Modal
