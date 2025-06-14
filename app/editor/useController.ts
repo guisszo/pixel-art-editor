@@ -43,7 +43,7 @@ export const useEditorController = () => {
         }
         await saveGridToStorage(saveName.trim(), grid);
         closeModal();
-        alert('Création sauvegardée.');
+        Alert.alert('Création sauvegardée.');
     }, [saveName, grid, closeModal]);
 
     const handleShare = useCallback(async () => {
