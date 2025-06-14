@@ -349,6 +349,7 @@ export default function EditorScreen() {
                 >
                     <ScrollView
                         horizontal
+                        contentContainerStyle={{ padding: 20 }}
                         showsHorizontalScrollIndicator={false}>
                         <View style={{ transform: [{ scale: zoomLevel }] }}>
                             <ViewShot
@@ -364,7 +365,7 @@ export default function EditorScreen() {
                         </View>
                     </ScrollView>
                 </View>
-            </ScrollView>
+            </ScrollView >
 
             <ColorPalette colors={DEFAULT_COLORS} />
 
@@ -389,6 +390,6 @@ export default function EditorScreen() {
                     </View>
                 </KeyboardAvoidingView>
             </Modal>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
