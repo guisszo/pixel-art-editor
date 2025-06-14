@@ -7,7 +7,10 @@ const initialState: PixelArtState = {
     selectedTool: 'pen',
     past: [],
     future: [],
-
+    gridRows: 16,
+    gridCols: 16,
+    cellSize: 20,
+    zoomLevel: 1,
 }
 
 const isPositionInvalid = (x: number, y: number, grid: Pixel[][], expectedColor: Pixel) => {
@@ -67,6 +70,9 @@ const pixelArtSlice = createSlice({
                 { length: payload.rows },
                 () => Array(payload.cols).fill(null)
             );
+
+            state.gridRows = payload.rows;
+            state.gridCols = payload.cols;
         },
         setColor: (state, { payload }: PayloadAction<string>) => {
             state.selectedColor = payload;
@@ -90,6 +96,56 @@ const pixelArtSlice = createSlice({
         setSelectedTool: (state, action: PayloadAction<Tool>) => {
             state.selectedTool = action.payload;
         },
+        setGridRows: (state, action: PayloadAction<number>) => {
+            const rows = Math.max(4, Math.min(64, action.payload));
+            if (rows !== state.gridRows) {
+                state.past.push(JSON.parse(JSON.stringify(state.grid)));
+                state.future = [];
+                state.gridRows = rows;
+
+                const newGrid = Array.from(
+                    { length: rows },
+                    (_, rowIndex) => Array.from(
+                        { length: state.gridCols },
+                        (_, colIdx) => {
+                            if (state.grid[rowIndex] && state.grid[rowIndex][colIdx] !== undefined) {
+                                return state.grid[rowIndex][colIdx];
+                            }
+                            return null;
+                        }
+                    )
+                );
+                state.grid = newGrid;
+            }
+        },
+        setGridCols: (state, action: PayloadAction<number>) => {
+            const cols = Math.max(4, Math.min(64, action.payload));
+            if (cols !== state.gridCols) {
+                state.past.push(JSON.parse(JSON.stringify(state.grid)));
+                state.future = [];
+                state.gridCols = cols;
+
+                const newGrid = Array.from(
+                    { length: state.gridRows },
+                    (_, rowidx) => Array.from(
+                        { length: cols },
+                        (_, colIdx) => {
+                            if (state.grid[rowidx] && state.grid[rowidx][colIdx] !== undefined) {
+                                return state.grid[rowidx][colIdx];
+                            }
+                            return null;
+                        }
+                    )
+                );
+                state.grid = newGrid;
+            }
+        },
+        setCellSize: (state, action: PayloadAction<number>) => {
+            state.cellSize = Math.max(10, Math.min(50, action.payload));
+        },
+        setZoomLevel: (state, action: PayloadAction<number>) => {
+            state.zoomLevel = Math.max(0.5, Math.min(3, action.payload));
+        },
         fillAllCells: onFillAllCells,
         undoAction: (state) => {
             if (state.past.length === 0) return;
@@ -98,7 +154,6 @@ const pixelArtSlice = createSlice({
             state.future.push(JSON.parse(JSON.stringify(state.grid)));
             state.grid = previous;
         },
-
         redoAction: (state) => {
             if (state.future.length === 0) return;
 
@@ -106,7 +161,6 @@ const pixelArtSlice = createSlice({
             state.past.push(JSON.parse(JSON.stringify(state.grid)));
             state.grid = next;
         },
-
     },
 })
 
@@ -116,6 +170,10 @@ export const {
     fillCell,
     setGrid,
     setSelectedTool,
+    setGridRows,
+    setGridCols,
+    setCellSize,
+    setZoomLevel,
     fillAllCells,
     undoAction,
     redoAction,
