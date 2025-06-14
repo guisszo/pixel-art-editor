@@ -1,36 +1,41 @@
-import { DEFAULT_COLORS } from '@/constants/colors'
-import { getGrid, isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
-import { saveGridToStorage } from '@/utils/storage'
-import { Link, useNavigation } from 'expo-router'
-import { FolderDown, Grid3X3, Save, Settings, Share2 } from 'lucide-react-native'
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { Alert, KeyboardAvoidingView, Modal, Platform, SafeAreaView, ScrollView, Share, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import ViewShot, { captureRef } from "react-native-view-shot"
-import { useSelector } from 'react-redux'
-import { ColorPalette, PixelGrid, ToolBar } from '../components'
-import { useStyles } from './useStyles'
+import { DEFAULT_COLORS } from '@/constants/colors';
+import { setCellSize, setGridCols, setGridRows, setZoomLevel } from '@/features/pixelArts/pixelArtsReducer';
+import Slider from '@react-native-community/slider';
+import { Link, useNavigation } from 'expo-router';
+import { FolderDown, Grid3X3, Minus, Plus, Save, Settings, Share2, ZoomIn, ZoomOut } from 'lucide-react-native';
+import React, { useCallback, useLayoutEffect } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import ViewShot from "react-native-view-shot";
+import { useDispatch } from 'react-redux';
+import { ColorPalette, PixelGrid, ToolBar } from '../components';
+import { useEditorController } from './useController';
+import { useStyles } from './useStyles';
 
 export default function EditorScreen() {
     const styles = useStyles();
-    const grid = useSelector(getGrid);
-    const isEmptyGrid = isGridEmpty(grid);
+    const dispatch = useDispatch();
+    const {
+        gridRows,
+        gridCols,
+        cellSize,
+        zoomLevel,
+        isEmptyGrid,
+        saveName,
+        setSaveName,
+        modalState,
+        openSaveModal,
+        openConfigModal,
+        closeModal,
+        viewShotRef,
+        handleSave,
+        handleShare,
+        handlePresetSelect,
+        handleZoomIn,
+        handleZoomOut,
+    } = useEditorController();
 
-    const [modalState, setModalState] = useState<{
-        visible: boolean;
-        type: 'save' | 'config' | null;
-    }>({
-        visible: false,
-        type: null,
-    });
 
-    const [saveName, setSaveName] = useState('');
-    const [gridRows, setGridRows] = useState(16);
-    const [gridCols, setGridCols] = useState(16);
-    const [cellSize, setCellSize] = useState(20);
-
-    const currentGrid = useSelector(getGrid);
     const navigation = useNavigation();
-    const viewShotRef = useRef<ViewShot>(null);
 
     const presetSizes = [
         { name: '8x8', rows: 8, cols: 8 },
@@ -39,12 +44,6 @@ export default function EditorScreen() {
         { name: '16x24', rows: 16, cols: 24 },
     ];
 
-    const openSaveModal = () => setModalState({ visible: true, type: 'save' });
-    const openConfigModal = () => setModalState({ visible: true, type: 'config' });
-    const closeModal = useCallback(() => {
-        setModalState({ visible: false, type: null });
-        setSaveName('');
-    }, []);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -84,45 +83,6 @@ export default function EditorScreen() {
         });
     }, [navigation, isEmptyGrid]);
 
-    const handleSave = useCallback(async () => {
-        if (!saveName.trim()) {
-            return Alert.alert("Nom requis", "Donne un nom à ta création !");
-        }
-        await saveGridToStorage(saveName.trim(), currentGrid);
-        closeModal();
-        alert('Création sauvegardée.');
-    }, [saveName, currentGrid, closeModal]);
-
-    const handleConfigSave = useCallback(() => {
-        const rows = Math.max(4, Math.min(64, gridRows));
-        const cols = Math.max(4, Math.min(64, gridCols));
-        const size = Math.max(10, Math.min(50, cellSize));
-
-        setGridRows(rows);
-        setGridCols(cols);
-        setCellSize(size);
-        closeModal();
-
-        Alert.alert("Configuration mise à jour", "Les nouveaux paramètres seront appliqués à la prochaine grille.");
-    }, [gridRows, gridCols, cellSize]);
-
-    const handleShare = useCallback(async () => {
-        try {
-            const uri = await captureRef(viewShotRef, {
-                format: 'png',
-                quality: 1,
-            });
-
-            await Share.share({
-                url: uri,
-                title: 'Mon Pixel Art',
-                message: 'Regarde mon pixel art !',
-            });
-        } catch (error) {
-            console.error("Erreur lors du partage :", error);
-        }
-    }, [viewShotRef]);
-
     const renderModalContent = useCallback(() => {
         if (modalState.type === 'save') {
             return (
@@ -136,10 +96,16 @@ export default function EditorScreen() {
                         autoFocus
                     />
                     <View style={styles.modalButtonContainer}>
-                        <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={closeModal}>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.cancelButton]}
+                            onPress={closeModal}
+                        >
                             <Text style={styles.cancelText}>Annuler</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleSave}>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.saveButton]}
+                            onPress={handleSave}
+                        >
                             <Text style={styles.saveText}>Enregistrer</Text>
                         </TouchableOpacity>
                     </View>
@@ -156,10 +122,14 @@ export default function EditorScreen() {
                     >
                         <View style={styles.configHeader}>
                             <Grid3X3 size={24} color="#333" />
-                            <Text style={styles.modalTitle}>Configuration de la grille</Text>
+                            <Text style={styles.modalTitle}>
+                                Configuration de la grille
+                            </Text>
                         </View>
 
-                        <Text style={styles.sectionTitle}>Tailles prédéfinies</Text>
+                        <Text style={styles.sectionTitle}>
+                            Tailles prédéfinies
+                        </Text>
                         <View style={styles.presetContainer}>
                             {
                                 presetSizes.map((preset) => (
@@ -167,18 +137,17 @@ export default function EditorScreen() {
                                         key={preset.name}
                                         style={[
                                             styles.presetButton,
-                                            gridRows === preset.rows && gridCols === preset.cols && styles.presetButtonActive,
+                                            gridRows === preset.rows &&
+                                            gridCols === preset.cols &&
+                                            styles.presetButtonActive
                                         ]}
-                                        onPress={() => {
-                                            setGridRows(preset.rows);
-                                            setGridCols(preset.cols);
-                                        }}
+                                        onPress={() => handlePresetSelect(preset)}
                                     >
                                         <Text style={[
                                             styles.presetText,
-                                            gridRows === preset.rows
-                                            && gridCols === preset.cols
-                                            && styles.presetTextActive,
+                                            gridRows === preset.rows &&
+                                            gridCols === preset.cols &&
+                                            styles.presetTextActive
                                         ]}>
                                             {preset.name}
                                         </Text>
@@ -189,48 +158,154 @@ export default function EditorScreen() {
 
                         <Text style={styles.sectionTitle}>Configuration personnalisée</Text>
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Lignes (4-64)</Text>
-                            <TextInput
-                                value={gridRows.toString()}
-                                onChangeText={(text) => setGridRows(parseInt(text) || 16)}
-                                keyboardType="numeric"
-                                style={styles.configInput}
+                        <View style={styles.sliderContainer}>
+                            <View style={styles.sliderHeader}>
+                                <Text style={styles.sliderLabel}>Lignes: {gridRows}</Text>
+                                <View style={styles.sliderButtons}>
+                                    <TouchableOpacity
+                                        onPress={() => dispatch(setGridRows(Math.max(4, gridRows - 1)))}
+                                        style={styles.sliderButton}
+                                    >
+                                        <Minus size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => dispatch(setGridRows(Math.min(64, gridRows + 1)))}
+                                        style={styles.sliderButton}
+                                    >
+                                        <Plus size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={4}
+                                maximumValue={64}
+                                step={1}
+                                value={gridRows}
+                                onValueChange={(value) => dispatch(setGridRows(Math.round(value)))}
+                                minimumTrackTintColor="#61BCD3"
+                                maximumTrackTintColor="#E0E0E0"
+                                thumbTintColor="#61BCD3"
                             />
                         </View>
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Colonnes (4-64)</Text>
-                            <TextInput
-                                value={gridCols.toString()}
-                                onChangeText={(text) => setGridCols(parseInt(text) || 16)}
-                                keyboardType="numeric"
-                                style={styles.configInput}
+                        <View style={styles.sliderContainer}>
+                            <View style={styles.sliderHeader}>
+                                <Text style={styles.sliderLabel}>Colonnes: {gridCols}</Text>
+                                <View style={styles.sliderButtons}>
+                                    <TouchableOpacity
+                                        onPress={() => dispatch(setGridCols(Math.max(4, gridCols - 1)))}
+                                        style={styles.sliderButton}
+                                    >
+                                        <Minus size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => dispatch(setGridCols(Math.min(64, gridCols + 1)))}
+                                        style={styles.sliderButton}
+                                    >
+                                        <Plus size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={4}
+                                maximumValue={64}
+                                step={1}
+                                value={gridCols}
+                                onValueChange={(value) => dispatch(setGridCols(Math.round(value)))}
+                                minimumTrackTintColor="#61BCD3"
+                                maximumTrackTintColor="#E0E0E0"
+                                thumbTintColor="#61BCD3"
                             />
                         </View>
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Taille des cellules (10-50)</Text>
-                            <TextInput
-                                value={cellSize.toString()}
-                                onChangeText={(text) => setCellSize(parseInt(text) || 20)}
-                                keyboardType="numeric"
-                                style={styles.configInput}
+                        <View style={styles.sliderContainer}>
+                            <View style={styles.sliderHeader}>
+                                <Text style={styles.sliderLabel}>Taille des cellules: {cellSize}px</Text>
+                                <View style={styles.sliderButtons}>
+                                    <TouchableOpacity
+                                        onPress={() => dispatch(setCellSize(Math.max(10, cellSize - 2)))}
+                                        style={styles.sliderButton}
+                                    >
+                                        <Minus size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => dispatch(setCellSize(Math.min(50, cellSize + 2)))}
+                                        style={styles.sliderButton}
+                                    >
+                                        <Plus size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View >
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={10}
+                                maximumValue={50}
+                                step={1}
+                                value={cellSize}
+                                onValueChange={(value) => dispatch(setCellSize(Math.round(value)))}
+                                minimumTrackTintColor="#61BCD3"
+                                maximumTrackTintColor="#E0E0E0"
+                                thumbTintColor="#61BCD3"
+                            />
+                        </View >
+
+                        <View style={styles.sliderContainer}>
+                            <View style={styles.sliderHeader}>
+                                <Text
+                                    style={styles.sliderLabel}
+                                >
+                                    Zoom: {Math.round(zoomLevel * 100)}%
+                                </Text>
+                                <View style={styles.sliderButtons}>
+                                    <TouchableOpacity
+                                        onPress={handleZoomOut}
+                                        style={styles.sliderButton}
+                                    >
+                                        <ZoomOut size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleZoomIn}
+                                        style={styles.sliderButton}
+                                    >
+                                        <ZoomIn size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={0.5}
+                                maximumValue={3}
+                                step={0.25}
+                                value={zoomLevel}
+                                onValueChange={(value) => dispatch(setZoomLevel(value))}
+                                minimumTrackTintColor="#61BCD3"
+                                maximumTrackTintColor="#E0E0E0"
+                                thumbTintColor="#61BCD3"
                             />
                         </View>
 
                         <View style={styles.previewInfo}>
-                            <Text style={styles.previewText}>Aperçu: {gridRows}×{gridCols} ({gridRows * gridCols} pixels)</Text>
-                            <Text style={styles.previewText}>Taille des cellules: {cellSize}px</Text>
+                            <Text
+                                style={styles.previewText}
+                            >
+                                Aperçu: {gridRows}×{gridCols} ({gridRows * gridCols} pixels)
+                            </Text>
+                            <Text
+                                style={styles.previewText}
+                            >
+                                Taille réelle: {Math.round(cellSize * zoomLevel)}px par cellule
+                            </Text>
                         </View>
-                    </ScrollView>
+                    </ScrollView >
 
                     <View style={styles.modalButtonContainer}>
-                        <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={closeModal}>
-                            <Text style={styles.cancelText}>Annuler</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleConfigSave}>
-                            <Text style={styles.saveText}>Appliquer</Text>
+                        <TouchableOpacity
+                            style={[styles.modalButton, styles.cancelButton]}
+                            onPress={closeModal}
+                        >
+                            <Text style={styles.cancelText}>Fermer</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -239,23 +314,60 @@ export default function EditorScreen() {
 
         return null;
     }, [
-        modalState.type, saveName, gridRows, gridCols, cellSize,
-        closeModal, handleSave, handleConfigSave
+        modalState.type, saveName, gridRows, gridCols, cellSize, zoomLevel,
+        closeModal, handleSave, handlePresetSelect, handleZoomIn, handleZoomOut, dispatch
     ]);
 
     return (
         <SafeAreaView style={styles.container}>
             <ToolBar />
-            <ViewShot
-                ref={viewShotRef}
-                options={{ format: "png", quality: 1 }}
+
+            <View style={styles.zoomControls}>
+                <TouchableOpacity
+                    onPress={handleZoomOut}
+                    style={styles.zoomButton}>
+                    <ZoomOut size={20} color="#666" />
+                </TouchableOpacity>
+                <Text
+                    style={styles.zoomText}>
+                    {Math.round(zoomLevel * 100)}%
+                </Text>
+                <TouchableOpacity
+                    onPress={handleZoomIn}
+                    style={styles.zoomButton}>
+                    <ZoomIn size={20} color="#666" />
+                </TouchableOpacity>
+            </View>
+            <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={{ flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
             >
-                <PixelGrid
-                    rows={gridRows}
-                    cols={gridCols}
-                    cellSize={cellSize}
-                />
-            </ViewShot>
+                <View
+                    style={styles.horizontalScrollViewWrapper}
+                >
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}>
+                        <View style={{ transform: [{ scale: zoomLevel }] }}>
+                            <ViewShot
+                                ref={viewShotRef}
+                                options={{ format: 'png', quality: 1 }}
+                            >
+                                <PixelGrid
+                                    rows={gridRows}
+                                    cols={gridCols}
+                                    cellSize={cellSize}
+                                />
+                            </ViewShot>
+                        </View>
+                    </ScrollView>
+                </View>
+            </ScrollView>
+
+
+
             <ColorPalette colors={DEFAULT_COLORS} />
 
             <Modal
@@ -268,12 +380,11 @@ export default function EditorScreen() {
                 <KeyboardAvoidingView
                     style={{ flex: 1 }}
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    keyboardVerticalOffset={Platform.OS === 'android' ? 100 : 0}
                 >
                     <View style={styles.modalOverlay}>
                         <View style={[
                             styles.modalContent,
-                            modalState.type === 'config' && { maxHeight: '80%' },
+                            modalState.type === 'config' && { maxHeight: '85%', width: '90%' },
                         ]}>
                             {renderModalContent()}
                         </View>
