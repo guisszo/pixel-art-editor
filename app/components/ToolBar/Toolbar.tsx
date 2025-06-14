@@ -49,9 +49,9 @@ export const ToolBar: React.FC = () => {
                 tools.map((tool, index) => {
                     const ToolIcon = tool.label;
                     const isValid = selected === tool.type && index <= 2;
-                    const isDisabled = (tool.type === 'undo' && past.length === 0) ||
-                        (tool.type === 'redo' && future.length === 0) ||
-                        (tool.type === 'reset' && isGridEmpty(grid));
+                    const isDisabled = (tool.type === 'undo' && past.length === 0)
+                        || (tool.type === 'redo' && future.length === 0)
+                        || (tool.type === 'reset' && isGridEmpty(grid));
                     return (
                         <React.Fragment
                             key={tool.type}
