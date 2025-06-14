@@ -1,9 +1,9 @@
-import { getFuture, getPast, getSelectedTool } from '@/features/pixelArts/gridPixelSelectors'
-import { redoAction, setSelectedTool, undoAction } from '@/features/pixelArts/pixelArtsReducer'
+import { getFuture, getGrid, getPast, getSelectedTool, isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
+import { redoAction, resetGrid, setSelectedTool, undoAction } from '@/features/pixelArts/pixelArtsReducer'
 import { Tool } from '@/features/pixelArts/types'
-import { PaintBucket, Pencil, Redo, Target, Undo } from 'lucide-react-native'
-import React from 'react'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { PaintBucket, Pencil, Redo, RotateCcw, Target, Undo } from 'lucide-react-native'
+import React, { useCallback } from 'react'
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 const tools = [
@@ -12,13 +12,36 @@ const tools = [
     { type: 'picker', label: Target },
     { type: 'undo', label: Undo },
     { type: 'redo', label: Redo },
+    { type: 'reset', label: RotateCcw },
 ];
 
 export const ToolBar: React.FC = () => {
     const dispatch = useDispatch();
     const selected = useSelector(getSelectedTool);
+    const grid = useSelector(getGrid);
     const past = useSelector(getPast);
     const future = useSelector(getFuture);
+    const handleReset = useCallback(() => {
+        if (!isGridEmpty(grid)) {
+            Alert.alert(
+                "Réinitialiser le tableau",
+                "Es-tu sûr de vouloir réinitialiser la grille ? Toutes les modifications seront perdues.",
+                [
+                    {
+                        text: "Annuler",
+                        style: "cancel"
+                    },
+                    {
+                        text: "Réinitialiser",
+                        style: "destructive",
+                        onPress: () => {
+                            dispatch(resetGrid());
+                        }
+                    }
+                ]
+            );
+        }
+    }, [dispatch, grid]);
 
     return (
         <View style={styles.container}>
@@ -27,7 +50,8 @@ export const ToolBar: React.FC = () => {
                     const ToolIcon = tool.label;
                     const isValid = selected === tool.type && index <= 2;
                     const isDisabled = (tool.type === 'undo' && past.length === 0) ||
-                        (tool.type === 'redo' && future.length === 0);
+                        (tool.type === 'redo' && future.length === 0) ||
+                        (tool.type === 'reset' && isGridEmpty(grid));
                     return (
                         <React.Fragment
                             key={tool.type}
@@ -41,6 +65,10 @@ export const ToolBar: React.FC = () => {
                                             break;
                                         case 'redo':
                                             dispatch(redoAction());
+                                            break;
+                                        case 'reset':
+                                            handleReset();
+                                            break;
                                         default:
                                             if (['pen', 'fill', 'picker'].includes(tool.type)) {
                                                 dispatch(setSelectedTool(tool.type as Tool));
@@ -93,7 +121,7 @@ const styles = StyleSheet.create({
     },
     button: {
         marginHorizontal: 10,
-        padding: 10,
+        padding: 5,
         borderRadius: 6,
         backgroundColor: '#f0f0f0',
     },

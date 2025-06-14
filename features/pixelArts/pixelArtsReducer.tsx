@@ -161,6 +161,15 @@ const pixelArtSlice = createSlice({
             state.past.push(JSON.parse(JSON.stringify(state.grid)));
             state.grid = next;
         },
+        resetGrid: (state) => {
+            state.past.push(JSON.parse(JSON.stringify(state.grid)));
+            state.future = [];
+
+            state.grid = Array.from(
+                { length: state.gridRows },
+                () => Array(state.gridCols).fill(null)
+            );
+        },
     },
 })
 
@@ -177,6 +186,7 @@ export const {
     fillAllCells,
     undoAction,
     redoAction,
+    resetGrid
 } = pixelArtSlice.actions;
 
 export default pixelArtSlice.reducer;
