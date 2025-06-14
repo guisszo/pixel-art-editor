@@ -8,7 +8,7 @@ import { KeyboardAvoidingView, Modal, Platform, SafeAreaView, ScrollView, Text, 
 import ViewShot from "react-native-view-shot";
 import { useDispatch } from 'react-redux';
 import { ColorPalette, PixelGrid, ToolBar } from '../components';
-import { useEditorController } from './useController';
+import { useController } from './useController';
 import { useStyles } from './useStyles';
 
 export default function EditorScreen() {
@@ -32,7 +32,7 @@ export default function EditorScreen() {
         handlePresetSelect,
         handleZoomIn,
         handleZoomOut,
-    } = useEditorController();
+    } = useController();
 
 
     const navigation = useNavigation();

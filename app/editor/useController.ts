@@ -13,7 +13,7 @@ import { Alert, Share } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { useDispatch, useSelector } from 'react-redux';
 
-export const useEditorController = () => {
+export const useController = () => {
     const dispatch = useDispatch();
     const grid = useSelector(getGrid);
     const gridRows = useSelector(getGridRows);
