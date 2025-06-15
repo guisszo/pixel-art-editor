@@ -10,8 +10,14 @@ export interface PixelArtState {
   gridCols: number;
   cellSize: number;
   zoomLevel: number;
+  currentSavedName: string | null;
 }
 
+export type CreateNewGridType = {
+  rows?: number;
+  cols?: number;
+  cellSize?: number
+}
 export type Cell = { x: number; y: number };
 
 export type Tool = 'pen' | 'fill' | 'picker' | 'undo' | 'redo';

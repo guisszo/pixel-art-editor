@@ -1,7 +1,7 @@
-import { getFuture, getGrid, getPast, getSelectedTool, isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
+import { getFuture, getPast, isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
 import { redoAction, resetGrid, setSelectedTool, undoAction } from '@/features/pixelArts/pixelArtsReducer'
-import { Tool } from '@/features/pixelArts/types'
-import { PaintBucket, Pencil, Redo, RotateCcw, Target, Undo } from 'lucide-react-native'
+import { Pixel, Tool } from '@/features/pixelArts/types'
+import { PaintBucket, Pencil, PlusIcon, Redo, RotateCcw, Target, Undo } from 'lucide-react-native'
 import React, { useCallback } from 'react'
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -13,12 +13,21 @@ const tools = [
     { type: 'undo', label: Undo },
     { type: 'redo', label: Redo },
     { type: 'reset', label: RotateCcw },
+    { type: 'new', label: PlusIcon }
 ];
 
-export const ToolBar: React.FC = () => {
+type ToolBarProps = {
+    grid: Pixel[][];
+    selectedTool: string
+    barActions: {
+        past: Pixel[][][];
+        future: Pixel[][][]
+        onAddNewGrid: () => void;
+    }
+
+}
+export const ToolBar: React.FC<ToolBarProps> = ({ grid, selectedTool, barActions }) => {
     const dispatch = useDispatch();
-    const selected = useSelector(getSelectedTool);
-    const grid = useSelector(getGrid);
     const past = useSelector(getPast);
     const future = useSelector(getFuture);
     const handleReset = useCallback(() => {
@@ -43,15 +52,18 @@ export const ToolBar: React.FC = () => {
         }
     }, [dispatch, grid]);
 
+
     return (
         <View style={styles.container}>
             {
                 tools.map((tool, index) => {
                     const ToolIcon = tool.label;
-                    const isValid = selected === tool.type && index <= 2;
+                    const isValid = selectedTool === tool.type && index <= 2;
                     const isDisabled = (tool.type === 'undo' && past.length === 0)
                         || (tool.type === 'redo' && future.length === 0)
-                        || (tool.type === 'reset' && isGridEmpty(grid));
+                        || (tool.type === 'reset' && isGridEmpty(grid))
+                        || (tool.type === 'new' && isGridEmpty(grid));
+
                     return (
                         <React.Fragment
                             key={tool.type}
@@ -68,6 +80,9 @@ export const ToolBar: React.FC = () => {
                                             break;
                                         case 'reset':
                                             handleReset();
+                                            break;
+                                        case 'new':
+                                            barActions.onAddNewGrid();
                                             break;
                                         default:
                                             if (['pen', 'fill', 'picker'].includes(tool.type)) {
@@ -88,7 +103,7 @@ export const ToolBar: React.FC = () => {
                                 />
                             </TouchableOpacity>
 
-                            {index === 2 && <View style={styles.separator} />}
+                            {(index === 2 || index === 5) && <View style={styles.separator} />}
                         </React.Fragment>
                     );
                 })
@@ -102,7 +117,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'center',
-        padding: 10,
+        paddingVertical: 10,
         marginVertical: 10,
         backgroundColor: '#fff',
         borderRadius: 12,
@@ -111,7 +126,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 1 },
         elevation: 2,
-        marginHorizontal: 20,
+        marginHorizontal: 5,
         alignItems: 'center',
         flexWrap: 'wrap',
     },
@@ -120,7 +135,7 @@ const styles = StyleSheet.create({
         opacity: 0.5,
     },
     button: {
-        marginHorizontal: 10,
+        marginHorizontal: 8,
         padding: 5,
         borderRadius: 6,
         backgroundColor: '#f0f0f0',

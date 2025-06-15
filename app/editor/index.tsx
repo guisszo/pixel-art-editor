@@ -15,6 +15,9 @@ export default function EditorScreen() {
     const styles = useStyles();
     const dispatch = useDispatch();
     const {
+        grid,
+        past,
+        future,
         gridRows,
         gridCols,
         cellSize,
@@ -23,6 +26,9 @@ export default function EditorScreen() {
         saveName,
         setSaveName,
         modalState,
+        currentSavedName,
+        selectedTool,
+        hasUnsavedChanges,
         openSaveModal,
         openConfigModal,
         closeModal,
@@ -32,6 +38,7 @@ export default function EditorScreen() {
         handlePresetSelect,
         handleZoomIn,
         handleZoomOut,
+        handleAddNewGrid
     } = useController();
 
 
@@ -46,42 +53,54 @@ export default function EditorScreen() {
 
 
     useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitle: 'Éditeur',
-            headerRight: () => (
-                <View style={styles.headerButtons}>
-                    <TouchableOpacity
-                        onPress={openConfigModal}
-                        style={{ marginRight: 12 }}
+        const setHeader = async () => {
+            const unsaved = await hasUnsavedChanges();
+            navigation.setOptions({
+                headerTitle: () => (
+                    <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ maxWidth: 70, fontWeight: 'bold' }}
                     >
-                        <Settings size={22} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        disabled={isEmptyGrid}
-                        onPress={openSaveModal}
-                        style={{ marginRight: 12 }}
-                    >
-                        <Save
-                            color={isEmptyGrid ? 'grey' : undefined}
-                            size={22}
-                        />
-                    </TouchableOpacity>
-                    <Link href="/gallery" asChild>
-                        <TouchableOpacity>
-                            <FolderDown size={22} />
+                        {currentSavedName ? `${currentSavedName}${unsaved ? ' *' : ''}` : 'Éditeur'}
+                    </Text>
+                ),
+                headerRight: () => (
+                    <View style={styles.headerButtons}>
+                        <TouchableOpacity
+                            onPress={openConfigModal}
+                            style={{ marginRight: 12 }}
+                        >
+                            <Settings size={22} />
                         </TouchableOpacity>
-                    </Link>
-                    {
-                        !isEmptyGrid && (
-                            <TouchableOpacity onPress={handleShare} style={{ marginLeft: 12 }}>
-                                <Share2 size={22} />
+                        <TouchableOpacity
+                            disabled={isEmptyGrid}
+                            onPress={openSaveModal}
+                            style={{ marginRight: 12 }}
+                        >
+                            <Save
+                                color={isEmptyGrid ? 'grey' : undefined}
+                                size={22}
+                            />
+                        </TouchableOpacity>
+                        <Link href="/gallery" asChild>
+                            <TouchableOpacity>
+                                <FolderDown size={22} />
                             </TouchableOpacity>
-                        )
-                    }
-                </View>
-            )
-        });
-    }, [navigation, isEmptyGrid]);
+                        </Link>
+                        {
+                            !isEmptyGrid && (
+                                <TouchableOpacity onPress={handleShare} style={{ marginLeft: 12 }}>
+                                    <Share2 size={22} />
+                                </TouchableOpacity>
+                            )
+                        }
+                    </View>
+                )
+            });
+        };
+        setHeader();
+    }, [navigation, isEmptyGrid, currentSavedName, hasUnsavedChanges, openConfigModal, openSaveModal, isEmptyGrid, handleShare, styles.headerButtons]);
 
     const renderModalContent = useCallback(() => {
         if (modalState.type === 'save') {
@@ -318,9 +337,18 @@ export default function EditorScreen() {
         closeModal, handleSave, handlePresetSelect, handleZoomIn, handleZoomOut, dispatch
     ]);
 
+
     return (
         <SafeAreaView style={styles.container}>
-            <ToolBar />
+            <ToolBar
+                grid={grid}
+                selectedTool={selectedTool}
+                barActions={{
+                    onAddNewGrid: handleAddNewGrid,
+                    future,
+                    past
+                }}
+            />
 
             <View style={styles.zoomControls}>
                 <TouchableOpacity

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Cell, FillAllCellsProps, Pixel, PixelArtState, Tool } from './types';
+import { Cell, CreateNewGridType, FillAllCellsProps, Pixel, PixelArtState, Tool } from './types';
 
 const initialState: PixelArtState = {
     grid: [],
@@ -11,6 +11,7 @@ const initialState: PixelArtState = {
     gridCols: 16,
     cellSize: 20,
     zoomLevel: 1,
+    currentSavedName: null,
 }
 
 const isPositionInvalid = (x: number, y: number, grid: Pixel[][], expectedColor: Pixel) => {
@@ -65,6 +66,27 @@ const pixelArtSlice = createSlice({
     name: 'pixelArt',
     initialState,
     reducers: {
+        createNewGrid: (state, action: PayloadAction<CreateNewGridType>) => {
+            state.past.push(JSON.parse(JSON.stringify(state.grid)));
+            state.future = [];
+
+            const rows = action.payload?.rows || 16;
+            const cols = action.payload?.cols || 16;
+            const cellSize = action.payload?.cellSize || 20;
+
+            state.grid = Array.from(
+                { length: rows },
+                () => Array(cols).fill(null)
+            );
+
+            state.gridRows = rows;
+            state.gridCols = cols;
+            state.cellSize = cellSize;
+            state.selectedColor = '#000000';
+            state.selectedTool = 'pen';
+            state.zoomLevel = 1;
+            state.currentSavedName = null;
+        },
         initializeGrid: (state, { payload }: PayloadAction<{ rows: number; cols: number }>) => {
             state.grid = Array.from(
                 { length: payload.rows },
@@ -162,7 +184,8 @@ const pixelArtSlice = createSlice({
             state.grid = next;
         },
         resetGrid: (state) => {
-            state.past.push(JSON.parse(JSON.stringify(state.grid)));
+            // state.past.push(JSON.parse(JSON.stringify(state.grid)));
+            state.past = []
             state.future = [];
 
             state.grid = Array.from(
@@ -170,10 +193,20 @@ const pixelArtSlice = createSlice({
                 () => Array(state.gridCols).fill(null)
             );
         },
+        setCurrentSavedName: (state, action: PayloadAction<string | null>) => {
+            state.currentSavedName = action.payload;
+        },
+        loadGridWithName: (state, action: PayloadAction<{ grid: Pixel[][], name: string }>) => {
+            state.past.push(JSON.parse(JSON.stringify(state.grid)));
+            state.future = [];
+            state.grid = action.payload.grid;
+            state.currentSavedName = action.payload.name;
+        },
     },
 })
 
 export const {
+    createNewGrid,
     initializeGrid,
     setColor,
     fillCell,
@@ -186,7 +219,9 @@ export const {
     fillAllCells,
     undoAction,
     redoAction,
-    resetGrid
+    resetGrid,
+    setCurrentSavedName,
+    loadGridWithName,
 } = pixelArtSlice.actions;
 
 export default pixelArtSlice.reducer;

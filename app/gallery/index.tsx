@@ -1,4 +1,4 @@
-import { setGrid } from '@/features/pixelArts/pixelArtsReducer'
+import { loadGridWithName } from '@/features/pixelArts/pixelArtsReducer'
 import { deleteGridFromStorage, listSavedGrids, loadGridFromStorage } from '@/utils/storage'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation, useRouter } from 'expo-router'
@@ -51,7 +51,7 @@ const GalleryScreen = () => {
   const handleLoad = useCallback(async (name: string) => {
     const grid = await loadGridFromStorage(name)
     if (grid) {
-      dispatch(setGrid(grid))
+      dispatch(loadGridWithName({ grid, name }))
       router.dismissTo('/editor')
     }
   }, [dispatch, router])

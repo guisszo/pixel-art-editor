@@ -34,3 +34,21 @@ export const deleteGridFromStorage = async (name: string) => {
     }
 }
 
+export const findGridByContent = async (currentGrid: Pixel[][]): Promise<string | null> => {
+    try {
+        const allSavedNames = await listSavedGrids();
+        const currentGridString = JSON.stringify(currentGrid);
+        
+        for (const name of allSavedNames) {
+            const savedGrid = await loadGridFromStorage(name);
+            if (savedGrid && JSON.stringify(savedGrid) === currentGridString) {
+                return name; 
+            }
+        }
+        return null;
+    } catch (e) {
+        console.error('Erreur lors de la recherche', e);
+        return null;
+    }
+};
+
