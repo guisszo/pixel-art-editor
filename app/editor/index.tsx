@@ -38,7 +38,7 @@ export default function EditorScreen() {
         handlePresetSelect,
         handleZoomIn,
         handleZoomOut,
-        handleAddNewGrid
+        handleToolbarActionPress
     } = useController();
 
 
@@ -344,10 +344,10 @@ export default function EditorScreen() {
                 grid={grid}
                 selectedTool={selectedTool}
                 barActions={{
-                    onAddNewGrid: handleAddNewGrid,
                     future,
                     past
                 }}
+                onToolbarActionPress={handleToolbarActionPress}
             />
 
             <View style={styles.zoomControls}>

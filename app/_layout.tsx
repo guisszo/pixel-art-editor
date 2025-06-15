@@ -10,8 +10,8 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: true }}>
           <Stack.Screen name="index" options={{ title: "accueil", headerShown: false }} />
-          <Stack.Screen name="editor" options={{ title: "Éditeur" }} />
-          <Stack.Screen name="gallery" options={{ title: 'Galerie' }} />
+          <Stack.Screen name="editor/index" options={{ title: "Éditeur" }} />
+          <Stack.Screen name="gallery/index" options={{ title: 'Galerie' }} />
         </Stack>
       </GestureHandlerRootView>
     </Provider>

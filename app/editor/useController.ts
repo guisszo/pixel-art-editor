@@ -1,3 +1,4 @@
+import { Tool } from '@/features';
 import {
     getCellSize,
     getCurrentSavedName,
@@ -9,9 +10,13 @@ import {
 } from '@/features/pixelArts/gridPixelSelectors';
 import {
     createNewGrid,
+    redoAction,
+    resetGrid,
     setCurrentSavedName,
     setGridCols, setGridRows,
-    setZoomLevel
+    setSelectedTool,
+    setZoomLevel,
+    undoAction
 } from '@/features/pixelArts/pixelArtsReducer';
 import { findGridByContent, loadGridFromStorage, saveGridToStorage } from '@/utils/storage';
 import { useCallback, useRef, useState } from 'react';
@@ -154,6 +159,50 @@ export const useController = () => {
         );
     }, [dispatch, isEmptyGrid, hasUnsavedChanges]);
 
+    const handleResetGrid = useCallback(() => {
+        if (!isGridEmpty(grid)) {
+            Alert.alert(
+                "Réinitialiser le tableau",
+                "Es-tu sûr de vouloir réinitialiser la grille ? Toutes les modifications seront perdues.",
+                [
+                    {
+                        text: "Annuler",
+                        style: "cancel"
+                    },
+                    {
+                        text: "Réinitialiser",
+                        style: "destructive",
+                        onPress: () => {
+                            dispatch(resetGrid());
+                        }
+                    }
+                ]
+            );
+        }
+    }, [dispatch, grid]);
+
+    const handleToolbarActionPress = useCallback((type: string) => {
+        switch (type) {
+            case 'undo':
+                dispatch(undoAction())
+                break;
+            case 'redo':
+                dispatch(redoAction());
+                break;
+            case 'reset':
+                handleResetGrid();
+                break;
+            case 'new':
+                handleAddNewGrid();
+                break;
+            default:
+                if (['pen', 'fill', 'picker'].includes(type)) {
+                    dispatch(setSelectedTool(type as Tool));
+                }
+                break;
+        }
+    }, [handleResetGrid, handleAddNewGrid, dispatch])
+
     return {
         grid,
         gridRows,
@@ -178,6 +227,6 @@ export const useController = () => {
         handlePresetSelect,
         handleZoomIn,
         handleZoomOut,
-        handleAddNewGrid
+        handleToolbarActionPress
     };
 }

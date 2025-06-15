@@ -1,10 +1,10 @@
-import { getFuture, getPast, isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
-import { redoAction, resetGrid, setSelectedTool, undoAction } from '@/features/pixelArts/pixelArtsReducer'
-import { Pixel, Tool } from '@/features/pixelArts/types'
+import { isGridEmpty } from '@/features/pixelArts/gridPixelSelectors'
+import { resetGrid } from '@/features/pixelArts/pixelArtsReducer'
+import { Pixel } from '@/features/pixelArts/types'
 import { PaintBucket, Pencil, PlusIcon, Redo, RotateCcw, Target, Undo } from 'lucide-react-native'
 import React, { useCallback } from 'react'
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 const tools = [
     { type: 'pen', label: Pencil },
@@ -22,14 +22,13 @@ type ToolBarProps = {
     barActions: {
         past: Pixel[][][];
         future: Pixel[][][]
-        onAddNewGrid: () => void;
     }
+    onToolbarActionPress: (type: string) => void;
 
 }
-export const ToolBar: React.FC<ToolBarProps> = ({ grid, selectedTool, barActions }) => {
+export const ToolBar: React.FC<ToolBarProps> = ({ grid, selectedTool, barActions, onToolbarActionPress }) => {
     const dispatch = useDispatch();
-    const past = useSelector(getPast);
-    const future = useSelector(getFuture);
+
     const handleReset = useCallback(() => {
         if (!isGridEmpty(grid)) {
             Alert.alert(
@@ -59,8 +58,8 @@ export const ToolBar: React.FC<ToolBarProps> = ({ grid, selectedTool, barActions
                 tools.map((tool, index) => {
                     const ToolIcon = tool.label;
                     const isValid = selectedTool === tool.type && index <= 2;
-                    const isDisabled = (tool.type === 'undo' && past.length === 0)
-                        || (tool.type === 'redo' && future.length === 0)
+                    const isDisabled = (tool.type === 'undo' && barActions.past.length === 0)
+                        || (tool.type === 'redo' && barActions.future.length === 0)
                         || (tool.type === 'reset' && isGridEmpty(grid))
                         || (tool.type === 'new' && isGridEmpty(grid));
 
@@ -70,27 +69,7 @@ export const ToolBar: React.FC<ToolBarProps> = ({ grid, selectedTool, barActions
                         >
                             <TouchableOpacity
                                 disabled={isDisabled}
-                                onPress={() => {
-                                    switch (tool.type) {
-                                        case 'undo':
-                                            dispatch(undoAction())
-                                            break;
-                                        case 'redo':
-                                            dispatch(redoAction());
-                                            break;
-                                        case 'reset':
-                                            handleReset();
-                                            break;
-                                        case 'new':
-                                            barActions.onAddNewGrid();
-                                            break;
-                                        default:
-                                            if (['pen', 'fill', 'picker'].includes(tool.type)) {
-                                                dispatch(setSelectedTool(tool.type as Tool));
-                                            }
-                                            break;
-                                    }
-                                }}
+                                onPress={() => onToolbarActionPress(tool.type)}
                                 style={[
                                     styles.button,
                                     isValid && styles.selected,
