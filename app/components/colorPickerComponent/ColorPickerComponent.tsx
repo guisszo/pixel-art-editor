@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { View } from "react-native";
 import { runOnJS } from 'react-native-reanimated';
 import ColorPicker, { ColorFormatsObject, HueSlider, Panel1 } from 'reanimated-color-picker';
+import { useStyles } from './useStyles';
 
 interface PickerComponentProps {
     onColorSelect: (color: string) => void;
@@ -12,6 +13,7 @@ export const ColorPickerComponent: React.FC<PickerComponentProps> = ({
     onColorSelect,
     selectedColor
 }) => {
+    const styles = useStyles();
     const onSelectColor = useCallback((color: ColorFormatsObject) => {
         'worklet';
         runOnJS(onColorSelect)(color.hex);
@@ -23,26 +25,18 @@ export const ColorPickerComponent: React.FC<PickerComponentProps> = ({
     }, [onColorSelect]);
 
     return (
-        <View style={{ alignItems: 'center', marginVertical: 15 }}>
+        <View style={styles.pickerContainer}>
             <ColorPicker
                 value={selectedColor}
                 onComplete={onCompleteColor}
                 onChange={onSelectColor}
-                style={{ width: 280, height: 280 }}
+                style={styles.picker}
                 thumbSize={24}
                 sliderThickness={20}
                 boundedThumb={true}
             >
-                <Panel1 style={{
-                    borderRadius: 16,
-                    width: '70%',
-                    height: '70%',
-                    alignSelf: 'center'
-                }} />
-                <HueSlider style={{
-                    justifyContent: 'center',
-                    marginTop: 20
-                }} thumbShape='pill' />
+                <Panel1 style={styles.panel} />
+                <HueSlider style={styles.sliderHue} thumbShape='pill' />
             </ColorPicker>
         </View>
     );

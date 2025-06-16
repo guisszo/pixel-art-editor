@@ -19,7 +19,6 @@ interface Props {
 
 export const ColorPalette: React.FC<Props> = ({ colors }) => {
   const selectedColor = useSelector(getSelectedColor);
-  const styles = useStyles(selectedColor);
   const {
     handleColorSelect,
     handleCustomColorSelect,
@@ -27,6 +26,7 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
     toggleExpand,
     getLayoutWidth,
     expanded,
+    isLandscape,
     showColorPicker,
     animatedContainerStyle,
     animatedIndicatorStyle,
@@ -35,6 +35,7 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
     animatedPaletteTextStyle,
     animatedCustomTextStyle
   } = usePaletteAnimations();
+  const styles = useStyles(selectedColor, isLandscape);
 
   return (
     <>

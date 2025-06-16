@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 
-export const useStyles = (selectedColor: string) => {
+export const useStyles = (selectedColor: string, isLandscape: boolean) => {
     const styles = useMemo(() => StyleSheet.create({
         container: {
             position: 'absolute',
@@ -92,8 +92,8 @@ export const useStyles = (selectedColor: string) => {
             paddingVertical: 5,
         },
         colorBlock: {
-            width: 32,
-            height: 32,
+            width: isLandscape ? 28 : 32,
+            height: isLandscape ? 28 : 32,
             borderRadius: 100,
             margin: 6,
             borderWidth: 2,
@@ -101,8 +101,8 @@ export const useStyles = (selectedColor: string) => {
         },
         colorPreview: {
             backgroundColor: selectedColor,
-            width: 100,
-            height: 100,
+            width: isLandscape ? 70 : 100,
+            height: isLandscape ? 70 : 100,
             borderRadius: 100
         },
         selected: {
@@ -113,7 +113,7 @@ export const useStyles = (selectedColor: string) => {
             ...StyleSheet.absoluteFillObject,
             // backgroundColor: 'rgba(0,0,0,0.3)',
         },
-    }), [selectedColor]);
+    }), [selectedColor, isLandscape]);
 
     return styles;
 }

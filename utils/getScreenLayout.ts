@@ -1,4 +1,8 @@
-export const getScreenLayout = (screenWidth: number, screenHeight: number) => {
+import { useWindowDimensions } from "react-native";
+
+export const getScreenLayout = () => {
+  const { height: screenHeight, width: screenWidth } = useWindowDimensions();
+
   const isLandscape = screenWidth > screenHeight
   const isMobile = screenWidth < 768
   const isTablet = screenWidth >= 768 && screenWidth < 1024

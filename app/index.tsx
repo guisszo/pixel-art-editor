@@ -105,8 +105,8 @@ const AnimatedCard = ({ href, icon, label, colors, delay, width, height }: any) 
 }
 
 const useStyles = (width: number, height: number) => {
-  const { isMobile, isDesktop, isTablet, isLandscape } = getScreenLayout(width, height)
-  
+  const { isMobile, isDesktop, isTablet, isLandscape } = getScreenLayout();
+
   const CARD_WIDTH = useMemo(() => {
     if (isTablet || isLandscape) {
       return (width - 80) / 2
