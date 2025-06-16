@@ -46,7 +46,7 @@ export const useStyles = (selectedColor: string) => {
             alignItems: 'center',
         },
         toggleButtonActive: {
-            backgroundColor: '#fff',
+            backgroundColor: '#61BCD3',
             shadowColor: '#000',
             shadowOpacity: 0.1,
             shadowOffset: { width: 0, height: 1 },
@@ -59,8 +59,25 @@ export const useStyles = (selectedColor: string) => {
             color: '#666',
         },
         toggleTextActive: {
-            color: '#333',
+            color: '#fff',
             fontWeight: '600',
+        },
+        tabIndicator: {
+            position: 'absolute',
+            top: 2,
+            left: 2,
+            right: '50%',
+            bottom: 2,
+            backgroundColor: '#61BCD3',
+            borderRadius: 6,
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowOffset: { width: 0, height: 1 },
+            shadowRadius: 2,
+            elevation: 2,
+        },
+        contentContainer: {
+            flex: 1,
         },
         colorsWrapperView: {
             flexDirection: 'row',
@@ -68,7 +85,7 @@ export const useStyles = (selectedColor: string) => {
             alignItems: 'center'
         },
         colorsContainer: {
-            flex:1,
+            flex: 1,
             flexDirection: 'row',
             flexWrap: 'wrap',
             // justifyContent: 'center',
