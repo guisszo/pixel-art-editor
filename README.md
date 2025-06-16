@@ -16,13 +16,27 @@ git clone https://github.com/guisszo/pixel-art-editor.git
 cd pixel-art-editor
 ```
 
-#### Lancement de l'app
+#### Installer les dépendances et lancement de l'app
 
 ```bash
+npm install
 npx expo start
 ```
 
-Appuyez sur `i` (iOS) ou `a` (Android) pour lancer un simulateur depuis le terminal.
+#### Prebuild l'app pour voir les modifs sans expo go
+
+```bash
+npx expo prebuild    
+```
+
+#### run l'app sur ios et android
+
+```bash
+npx expo run:ios
+npx expo run:android
+```
+
+Appuyez sur `i` (iOS) ou `a` (Android) pour lancer un simulateur depuis le terminal(Expo go).
 
 ---
 
