@@ -5,13 +5,13 @@ import { LayoutChangeEvent, useWindowDimensions } from "react-native";
 import { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
 
-const COLLAPSED_HEIGHT = 100;
+const COLLAPSED_HEIGHT = 60;
 
 export const usePaletteAnimations = () => {
     const { height: screenHeight } = useWindowDimensions();
     const { isLandscape } = getScreenLayout();
 
-    const EXPANDED_HEIGHT = isLandscape ? screenHeight * 0.82 : screenHeight * 0.6;
+    const EXPANDED_HEIGHT = isLandscape ? screenHeight * 0.80 : screenHeight * 0.6;
 
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState<boolean>(false);

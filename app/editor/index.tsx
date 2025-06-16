@@ -403,6 +403,7 @@ export default function EditorScreen() {
                 animationType="slide"
                 onRequestClose={closeModal}
                 statusBarTranslucent
+                supportedOrientations={['landscape',"portrait"]}
             >
                 <KeyboardAvoidingView
                     style={{ flex: 1 }}
