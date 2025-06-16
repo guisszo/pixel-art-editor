@@ -3,7 +3,7 @@
     "name": "PixelArtEditor",
     "slug": "PixelArtEditor",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/pixel-art-logo.png",
     "scheme": "pixelarteditor",
     "userInterfaceStyle": "automatic",
