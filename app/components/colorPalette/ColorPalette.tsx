@@ -94,6 +94,10 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  onLayout={(e) => {
+                    const width = e.nativeEvent.layout.width;
+                    tabWidth.value = width;
+                  }}
                   onPress={toggleColorPicker}
                   style={styles.toggleButton}
                   activeOpacity={0.7}

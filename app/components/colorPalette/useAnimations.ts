@@ -91,7 +91,6 @@ export const usePaletteAnimations = () => {
             }
         );
 
-        // Animation du contenu
         animateContentTransition();
     }, [showColorPicker, tabIndicator, animateContentTransition]);
 
