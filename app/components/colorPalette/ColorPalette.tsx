@@ -13,7 +13,6 @@ import { ColorPickerComponent } from '../colorPickerComponent';
 import { usePaletteAnimations } from './useAnimations';
 import { useStyles } from './useStyles';
 
-
 interface Props {
   colors: string[];
 }
@@ -26,7 +25,7 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
     handleCustomColorSelect,
     toggleColorPicker,
     toggleExpand,
-    tabWidth,
+    getLayoutWidth,
     expanded,
     showColorPicker,
     animatedContainerStyle,
@@ -35,8 +34,7 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
     animatedColorPreviewStyle,
     animatedPaletteTextStyle,
     animatedCustomTextStyle
-  } = usePaletteAnimations()
-
+  } = usePaletteAnimations();
 
   return (
     <>
@@ -78,10 +76,7 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
                 />
 
                 <TouchableOpacity
-                  onLayout={(e) => {
-                    const width = e.nativeEvent.layout.width;
-                    tabWidth.value = width;
-                  }}
+                  onLayout={getLayoutWidth}
                   onPress={toggleColorPicker}
                   style={styles.toggleButton}
                   activeOpacity={0.7}
@@ -94,10 +89,7 @@ export const ColorPalette: React.FC<Props> = ({ colors }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onLayout={(e) => {
-                    const width = e.nativeEvent.layout.width;
-                    tabWidth.value = width;
-                  }}
+                  onLayout={getLayoutWidth}
                   onPress={toggleColorPicker}
                   style={styles.toggleButton}
                   activeOpacity={0.7}

@@ -1,6 +1,6 @@
 import { setColor } from "@/features/pixelArts/pixelArtsReducer";
 import { useCallback, useState } from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, LayoutChangeEvent } from "react-native";
 import { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
 
@@ -19,6 +19,11 @@ export const usePaletteAnimations = () => {
     const contentOpacity = useSharedValue(1);
     const contentTranslateX = useSharedValue(0);
     const colorPreviewScale = useSharedValue(1);
+
+    const getLayoutWidth = useCallback((e: LayoutChangeEvent) => {
+        const width = e.nativeEvent.layout.width;
+        tabWidth.value = width;
+    }, [tabWidth]);
 
     const toggleExpand = useCallback(() => {
         const newExpanded = !expanded;
@@ -140,7 +145,7 @@ export const usePaletteAnimations = () => {
         handleCustomColorSelect,
         toggleColorPicker,
         toggleExpand,
-        tabWidth,
+        getLayoutWidth,
         showColorPicker,
         expanded,
         animatedContainerStyle,
